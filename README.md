@@ -38,17 +38,12 @@ git clone https://github.com/leggedrobotics/libpointmatcher.git
 git clone https://github.com/leggedrobotics/pointmatcher-ros.git
 ```
 
-Install ROS and library dependencies with:  
+Install ROS, library dependencies and compile the workspace with:  
 ```bash
 sudo apt install -y ros-noetic-pcl-ros ros-noetic-pcl-conversions ros-noetic-eigen-conversions ros-noetic-tf-conversions ros-noetic-tf2-ros libgoogle-glog-dev
 # OR, use rosdep in your source folder `src` 
 sudo rosdep install -yr --from-paths .
-```
-
-Recommended to build in release mode for performance (`catkin config -DCMAKE_BUILD_TYPE=Release`)
-
-Build with:  
-```bash
+catkin config -DCMAKE_BUILD_TYPE=Release
 catkin build icp_localization
 ```
 
@@ -56,7 +51,11 @@ catkin build icp_localization
 
 This package is based on the `libpointmatcher` package and it uses the ICP implementation from there. Libpointmatcher has an extensive [documentation](https://libpointmatcher.readthedocs.io/en/latest/). icp_localization provides ROS wrappers and uses either odometry or IMU measurements to calculate initial guesses for the pointcloud alignment.
 
-You can launch the program on the robot with: `roslaunch icp_localization icp_node.launch`. The `pcd_filepath` parameter in the launch file should point to the location where you stored your refrence map (pointcloud) in the `.pcd` format.
+You can launch the program on the robot with: 
+```
+roslaunch icp_localization icp_node.launch
+```` 
+The `pcd_filepath` parameter in the launch file should point to the location where you stored your refrence map (pointcloud) in the `.pcd` format.
 
 You can download the example bags and the example config files [here](https://drive.google.com/drive/folders/1XF3MUqT55m2beZYUe_IHQ4uhf6LF8m2J?usp=sharing). You can copy paste the rosbag and the map (`.pcd` file) to the `data` folder. Put the `.yaml` file in the config folder and you should be ready to run the forest environment example. For running the urban example, please adjust the parameters in the `icp_node_rosbag.launch` file. You need to chnage the `pcd_filename`, `input_filters_config_name`, `bag_filename` and the `parameter_filepath`.
 
