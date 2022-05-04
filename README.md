@@ -32,6 +32,7 @@ The package has been tested on the platforms shown in the images below. It has a
 Clone the following three dependencies:
 ```bash
 # in your source folder `src`
+git clone https://github.com/leggedrobotics/icp_localization.git
 git clone https://github.com/leggedrobotics/libnabo.git
 git clone https://github.com/leggedrobotics/libpointmatcher.git
 git clone https://github.com/leggedrobotics/pointmatcher-ros.git
@@ -39,7 +40,7 @@ git clone https://github.com/leggedrobotics/pointmatcher-ros.git
 
 Install ROS and library dependencies with:  
 ```bash
-sudo apt install -y ros-noetic-pcl-ros ros-noetic-pcl-conversions ros-noetic-eigen-conversions ros-noetic-tf-conversions ros-noetic-tf2-geometry libgoogle-glog-dev
+sudo apt install -y ros-noetic-pcl-ros ros-noetic-pcl-conversions ros-noetic-eigen-conversions ros-noetic-tf-conversions ros-noetic-tf2-ros libgoogle-glog-dev
 # OR, use rosdep in your source folder `src` 
 sudo rosdep install -yr --from-paths .
 ```
@@ -59,7 +60,10 @@ You can launch the program on the robot with: `roslaunch icp_localization icp_no
 
 You can download the example bags and the example config files [here](https://drive.google.com/drive/folders/1XF3MUqT55m2beZYUe_IHQ4uhf6LF8m2J?usp=sharing). You can copy paste the rosbag and the map (`.pcd` file) to the `data` folder. Put the `.yaml` file in the config folder and you should be ready to run the forest environment example. For running the urban example, please adjust the parameters in the `icp_node_rosbag.launch` file. You need to chnage the `pcd_filename`, `input_filters_config_name`, `bag_filename` and the `parameter_filepath`.
 
-The rosbag examples can be luaunched with `roslaunch icp_localization icp_node_rosbag.launch`
+The rosbag examples can be luaunched with:
+```
+roslaunch icp_localization icp_node_rosbag.launch
+```
 
 Note that the urban dataset uses the velodyne LIDAR whereas the forest dataset uses the ouster LIDAR. Please adjust the input_filters config file accordingly. Furthermore, in the forest dataset instead of full scans, each lidar packet is converted to pointcloud msg and then published.
 
@@ -68,6 +72,127 @@ The system has been tested with T265 tracking camera as an odometry source as we
 The node also subscribes to the `/initialpose` topic and you can use rviz to set the initial pose of the range sensor. Note that this is not the initial robot pose since the range sensor coordinate frame might not coincide with the robot frame.
 
 The node publishes the TF tree: map->odom->odom_source->range_sensor (in case you are using the odometry).
+
+Try to see with rostopic list:
+```
+arghya@arghya-Erazer-X7849-MD60379:~/icp_localization_ws$ rostopic list
+/camera/odom/sample
+/clicked_point
+/clock
+/icp_node/assembled_scans
+/icp_node/icp_map
+/icp_node/range_sensor_pose
+/icp_node/registered_cloud
+/initialpose
+/move_base_simple/goal
+/rosout
+/rosout_agg
+/rslidar_points
+/tf
+/tf_static
+/versavis/imu
+```
+Try to see with rosnode list:
+```
+arghya@arghya-Erazer-X7849-MD60379:~/icp_localization_ws$ rosnode list
+/icp_node
+/rosbag
+/rosout
+/rviz_icp
+```
+Try to see with rosnode info:
+```
+arghya@arghya-Erazer-X7849-MD60379:~/icp_localization_ws$ rosnode info /icp_node
+--------------------------------------------------------------------------------
+Node [/icp_node]
+Publications: 
+ * /icp_node/assembled_scans [sensor_msgs/PointCloud2]
+ * /icp_node/icp_map [sensor_msgs/PointCloud2]
+ * /icp_node/range_sensor_pose [geometry_msgs/PoseStamped]
+ * /icp_node/registered_cloud [sensor_msgs/PointCloud2]
+ * /rosout [rosgraph_msgs/Log]
+ * /tf [tf2_msgs/TFMessage]
+
+Subscriptions: 
+ * /camera/odom/sample [nav_msgs/Odometry]
+ * /clock [rosgraph_msgs/Clock]
+ * /initialpose [geometry_msgs/PoseWithCovarianceStamped]
+ * /rslidar_points [sensor_msgs/PointCloud2]
+ * /tf [tf2_msgs/TFMessage]
+ * /tf_static [tf2_msgs/TFMessage]
+ * /versavis/imu [sensor_msgs/Imu]
+
+Services: 
+ * /icp_node/get_loggers
+ * /icp_node/set_logger_level
+
+
+contacting node http://arghya-Erazer-X7849-MD60379:46705/ ...
+Pid: 26029
+Connections:
+ * topic: /rosout
+    * to: /rosout
+    * direction: outbound (57025 - 127.0.0.1:48478) [10]
+    * transport: TCPROS
+ * topic: /icp_node/icp_map
+    * to: /rviz_icp
+    * direction: outbound (57025 - 127.0.0.1:48482) [18]
+    * transport: TCPROS
+ * topic: /tf
+    * to: /icp_node
+    * direction: outbound
+    * transport: INTRAPROCESS
+ * topic: /tf
+    * to: /rviz_icp
+    * direction: outbound (57025 - 127.0.0.1:48480) [15]
+    * transport: TCPROS
+ * topic: /icp_node/registered_cloud
+    * to: /rviz_icp
+    * direction: outbound (57025 - 127.0.0.1:48486) [20]
+    * transport: TCPROS
+ * topic: /icp_node/range_sensor_pose
+    * to: /rviz_icp
+    * direction: outbound (57025 - 127.0.0.1:48484) [19]
+    * transport: TCPROS
+ * topic: /clock
+    * to: /rosbag (http://arghya-Erazer-X7849-MD60379:38439/)
+    * direction: inbound (46108 - arghya-Erazer-X7849-MD60379:46555) [11]
+    * transport: TCPROS
+ * topic: /tf
+    * to: /icp_node (http://arghya-Erazer-X7849-MD60379:46705/)
+    * direction: inbound
+    * transport: INTRAPROCESS
+ * topic: /tf_static
+    * to: /rosbag (http://arghya-Erazer-X7849-MD60379:38439/)
+    * direction: inbound (46116 - arghya-Erazer-X7849-MD60379:46555) [14]
+    * transport: TCPROS
+ * topic: /rslidar_points
+    * to: /rosbag (http://arghya-Erazer-X7849-MD60379:38439/)
+    * direction: inbound (46120 - arghya-Erazer-X7849-MD60379:46555) [22]
+    * transport: TCPROS
+ * topic: /camera/odom/sample
+    * to: /rosbag (http://arghya-Erazer-X7849-MD60379:38439/)
+    * direction: inbound (46126 - arghya-Erazer-X7849-MD60379:46555) [25]
+    * transport: TCPROS
+ * topic: /versavis/imu
+    * to: /rosbag (http://arghya-Erazer-X7849-MD60379:38439/)
+    * direction: inbound (46124 - arghya-Erazer-X7849-MD60379:46555) [24]
+    * transport: TCPROS
+ * topic: /initialpose
+    * to: /rviz_icp (http://arghya-Erazer-X7849-MD60379:45837/)
+    * direction: inbound (33564 - arghya-Erazer-X7849-MD60379:33879) [23]
+    * transport: TCPROS
+
+arghya@arghya-Erazer-X7849-MD60379:~/icp_localization_ws$ rostopic info /camera/odom/sample
+Type: nav_msgs/Odometry
+
+Publishers: 
+ * /rosbag (http://arghya-Erazer-X7849-MD60379:38439/)
+
+Subscribers: 
+ * /icp_node (http://arghya-Erazer-X7849-MD60379:46705/)
+ * /rviz_icp (http://arghya-Erazer-X7849-MD60379:45837/)
+```
 
 ## Configuration
 
